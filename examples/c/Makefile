@@ -9,6 +9,7 @@ BPFTOOL ?= $(BPFTOOL_OUTPUT)/bootstrap/bpftool
 LIBBLAZESYM_SRC := $(abspath ../../blazesym/)
 LIBBLAZESYM_INC := $(abspath $(LIBBLAZESYM_SRC)/include)
 LIBBLAZESYM_OBJ := $(abspath $(OUTPUT)/libblazesym.a)
+TOPDIR := $(shell git rev-parse --show-toplevel)
 ARCH ?= arm64
 
 # $(shell uname -m | sed 's/x86_64/x86/' \
@@ -132,7 +133,7 @@ $(BZS_APPS): $(LIBBLAZESYM_OBJ)
 # Build application binary
 $(APPS): %: $(OUTPUT)/%.o $(LIBBPF_OBJ) | $(OUTPUT)
 	$(call msg,BINARY,$@)
-	$(Q)$(CC) $(CFLAGS) -static $^ $(ALL_LDFLAGS) -L/home/jiahuan/libelf-aarch64/usr/lib -lelf -L/home/jiahuan/zlib-1.2.10 -lz -o $@
+	$(Q)$(CC) $(CFLAGS) -static $^ $(ALL_LDFLAGS) -L$(TOPDIR)/deps/libelf-aarch64/usr/lib -lelf -L$(TOPDIR)/deps/zlib-1.2.10 -lz -o $@
 
 # delete failed targets
 .DELETE_ON_ERROR:

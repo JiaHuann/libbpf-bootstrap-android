@@ -1,0 +1,555 @@
+--------------------
+./configure --prefix=/opt/files/release/zlib/aarch64/
+Mon Aug 21 20:40:35 CST 2023
+=== ztest62828.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+arm-linux-gnueabi-gcc -c ztest62828.c
+... using gcc
+
+Checking for obsessive-compulsive compiler options...
+=== ztest62828.c ===
+int foo() { return 0; }
+===
+arm-linux-gnueabi-gcc -c -O3 ztest62828.c
+
+Checking for shared library support...
+=== ztest62828.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+arm-linux-gnueabi-gcc -w -c -O3 -fPIC ztest62828.c
+arm-linux-gnueabi-gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest62828.so ztest62828.o
+Building shared library libz.so.1.2.10 with arm-linux-gnueabi-gcc.
+
+=== ztest62828.c ===
+#include <stdio.h>
+#include <stdlib.h>
+size_t dummy = 0;
+===
+arm-linux-gnueabi-gcc -c -O3 ztest62828.c
+Checking for size_t... Yes.
+
+
+=== ztest62828.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+arm-linux-gnueabi-gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest62828.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest62828.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+arm-linux-gnueabi-gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest62828 ztest62828.c
+Checking for strerror... Yes.
+
+=== ztest62828.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+arm-linux-gnueabi-gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest62828.c
+Checking for unistd.h... Yes.
+
+=== ztest62828.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+arm-linux-gnueabi-gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest62828.c
+Checking for stdarg.h... Yes.
+
+=== ztest62828.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+arm-linux-gnueabi-gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest62828.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest62828.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+arm-linux-gnueabi-gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest62828 ztest62828.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest62828.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+arm-linux-gnueabi-gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest62828.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest62828.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+arm-linux-gnueabi-gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest62828.c
+Checking for attribute(visibility) support... Yes.
+
+ALL = static shared all64
+AR = arm-linux-gnueabi-ar
+ARFLAGS = rc
+CC = arm-linux-gnueabi-gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = arm-linux-gnueabi-gcc -E
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = arm-linux-gnueabi-gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = arm-linux-gnueabi-gcc-ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.10
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.10
+Z_U4 =
+SRCDIR =
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /opt/files/release/zlib/aarch64/
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure --host=arm-none-linux-gnueabi --target=arm-none-linux-gnueabi --prefix=/opt/files/release/elfutils/aarch64/ --disable-debuginfod
+Mon Aug 21 20:50:25 CST 2023
+unknown option: --host=arm-none-linux-gnueabi
+./configure --help for help
+** ./configure aborting.
+--------------------
+
+
+--------------------
+./configure --host=arm-none-linux-gnueabi --target=arm-none-linux-gnueabi --prefix=/opt/files/release/elfutils/aarch64/ --disable-debuginfod
+Mon Aug 21 20:50:32 CST 2023
+unknown option: --host=arm-none-linux-gnueabi
+./configure --help for help
+** ./configure aborting.
+--------------------
+
+
+--------------------
+./configure --host=arm-none-linux-gnueabi --target=arm-none-linux-gnueabi --prefix=/opt/files/release/elfutils/aarch64/ --disable-debuginfod
+Mon Aug 21 20:50:49 CST 2023
+unknown option: --host=arm-none-linux-gnueabi
+./configure --help for help
+** ./configure aborting.
+--------------------
+
+
+--------------------
+./configure --host=arm-none-linux-gnueabi --target=arm-none-linux-gnueabi --prefix=/opt/files/release/elfutils/aarch64/ --disable-debuginfod
+Mon Aug 21 20:50:57 CST 2023
+unknown option: --host=arm-none-linux-gnueabi
+./configure --help for help
+** ./configure aborting.
+--------------------
+
+
+--------------------
+./configure --host=arm-linux-gnueabi-gcc-linux --prefix=/opt/files/release/elfutils/aarch64/ --disable-debuginfod
+Mon Aug 21 20:51:07 CST 2023
+unknown option: --host=arm-linux-gnueabi-gcc-linux
+./configure --help for help
+** ./configure aborting.
+--------------------
+
+
+--------------------
+./configure --prefix=/usr/lib/aarch64/
+Mon Aug 21 21:08:39 CST 2023
+=== ztest79095.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+arm-linux-gnueabi-gcc -c ztest79095.c
+... using gcc
+
+Checking for obsessive-compulsive compiler options...
+=== ztest79095.c ===
+int foo() { return 0; }
+===
+arm-linux-gnueabi-gcc -c -O3 ztest79095.c
+
+Checking for shared library support...
+=== ztest79095.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+arm-linux-gnueabi-gcc -w -c -O3 -fPIC ztest79095.c
+arm-linux-gnueabi-gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest79095.so ztest79095.o
+Building shared library libz.so.1.2.10 with arm-linux-gnueabi-gcc.
+
+=== ztest79095.c ===
+#include <stdio.h>
+#include <stdlib.h>
+size_t dummy = 0;
+===
+arm-linux-gnueabi-gcc -c -O3 ztest79095.c
+Checking for size_t... Yes.
+
+
+=== ztest79095.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+arm-linux-gnueabi-gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest79095.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest79095.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+arm-linux-gnueabi-gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest79095 ztest79095.c
+Checking for strerror... Yes.
+
+=== ztest79095.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+arm-linux-gnueabi-gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest79095.c
+Checking for unistd.h... Yes.
+
+=== ztest79095.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+arm-linux-gnueabi-gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest79095.c
+Checking for stdarg.h... Yes.
+
+=== ztest79095.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+arm-linux-gnueabi-gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest79095.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest79095.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+arm-linux-gnueabi-gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest79095 ztest79095.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest79095.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+arm-linux-gnueabi-gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest79095.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest79095.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+arm-linux-gnueabi-gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest79095.c
+Checking for attribute(visibility) support... Yes.
+
+ALL = static shared all64
+AR = arm-linux-gnueabi-ar
+ARFLAGS = rc
+CC = arm-linux-gnueabi-gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = arm-linux-gnueabi-gcc -E
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = arm-linux-gnueabi-gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = arm-linux-gnueabi-gcc-ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.10
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.10
+Z_U4 =
+SRCDIR =
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /usr/lib/aarch64/
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
+--------------------
+./configure --host=arm-none-linux-gnueabi --target=arm-none-linux-gnueabi --prefix=/opt/files/release/elfutils/aarch64/ --disable-debuginfod
+Mon Aug 21 21:09:51 CST 2023
+unknown option: --host=arm-none-linux-gnueabi
+./configure --help for help
+** ./configure aborting.
+--------------------
+
+
+--------------------
+./configure --host=arm-none-linux-gnueabi --target=arm-none-linux-gnueabi --prefix=/opt/files/release/elfutils/aarch64/ --disable-debuginfod
+Mon Aug 21 21:09:56 CST 2023
+unknown option: --host=arm-none-linux-gnueabi
+./configure --help for help
+** ./configure aborting.
+--------------------
+
+
+--------------------
+./configure --prefix=/opt/files/release/zlib/aarch64/
+Tue Aug 22 01:35:34 CST 2023
+=== ztest155678.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+aarch64-linux-gnu-gcc -c ztest155678.c
+... using gcc
+
+Checking for obsessive-compulsive compiler options...
+=== ztest155678.c ===
+int foo() { return 0; }
+===
+aarch64-linux-gnu-gcc -c -O3 ztest155678.c
+
+Checking for shared library support...
+=== ztest155678.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+aarch64-linux-gnu-gcc -w -c -O3 -fPIC ztest155678.c
+aarch64-linux-gnu-gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map -O3 -fPIC -o ztest155678.so ztest155678.o
+Building shared library libz.so.1.2.10 with aarch64-linux-gnu-gcc.
+
+=== ztest155678.c ===
+#include <stdio.h>
+#include <stdlib.h>
+size_t dummy = 0;
+===
+aarch64-linux-gnu-gcc -c -O3 ztest155678.c
+Checking for size_t... Yes.
+
+
+=== ztest155678.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+aarch64-linux-gnu-gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest155678.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest155678.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+aarch64-linux-gnu-gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest155678 ztest155678.c
+Checking for strerror... Yes.
+
+=== ztest155678.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+aarch64-linux-gnu-gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest155678.c
+Checking for unistd.h... Yes.
+
+=== ztest155678.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+aarch64-linux-gnu-gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest155678.c
+Checking for stdarg.h... Yes.
+
+=== ztest155678.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+aarch64-linux-gnu-gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest155678.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest155678.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+aarch64-linux-gnu-gcc -O3 -D_LARGEFILE64_SOURCE=1 -o ztest155678 ztest155678.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest155678.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+aarch64-linux-gnu-gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest155678.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest155678.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+aarch64-linux-gnu-gcc -c -O3 -D_LARGEFILE64_SOURCE=1 ztest155678.c
+Checking for attribute(visibility) support... Yes.
+
+ALL = static shared all64
+AR = aarch64-linux-gnu-ar
+ARFLAGS = rc
+CC = aarch64-linux-gnu-gcc
+CFLAGS = -O3 -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP = aarch64-linux-gnu-gcc -E
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = aarch64-linux-gnu-gcc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = aarch64-linux-gnu-gcc-ranlib
+SFLAGS = -O3 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB = libz.so
+SHAREDLIBM = libz.so.1
+SHAREDLIBV = libz.so.1.2.10
+STATICLIB = libz.a
+TEST = all teststatic testshared test64
+VER = 1.2.10
+Z_U4 =
+SRCDIR =
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /opt/files/release/zlib/aarch64/
+sharedlibdir = ${libdir}
+uname = Linux
+--------------------
+
+
