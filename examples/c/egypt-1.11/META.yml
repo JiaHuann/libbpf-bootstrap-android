@@ -1,0 +1,21 @@
+---
+abstract: 'A tool for creating call graphs of C programs'
+author:
+  - 'Andreas Gustafsson'
+build_requires:
+  ExtUtils::MakeMaker: '0'
+configure_requires:
+  ExtUtils::MakeMaker: '0'
+dynamic_config: 1
+generated_by: 'ExtUtils::MakeMaker version 7.62, CPAN::Meta::Converter version 2.150010'
+license: unknown
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: '1.4'
+name: egypt
+no_index:
+  directory:
+    - t
+    - inc
+version: '1.11'
+x_serialization_backend: 'CPAN::Meta::YAML version 0.018'

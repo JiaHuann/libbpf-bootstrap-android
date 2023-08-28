@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "bpf_helpers.h": "c",
+        "string.h": "c",
+        "common.h": "c",
+        "resource.h": "c",
+        "bpf.h": "c",
+        "bpf_core_read.h": "c",
+        "myringbuffer.skel.h": "c",
+        "libbpf.h": "c",
+        "bpf_tracing.h": "c"
+    }
+}

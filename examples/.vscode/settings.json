@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "vmlinux.h": "c",
+        "signal.h": "c",
+        "common.h": "c",
+        "bpf_tracing.h": "c"
+    }
+}

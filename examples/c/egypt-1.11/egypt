@@ -1,0 +1,629 @@
+#!/usr/bin/perl -w
+
+=head1 NAME
+
+egypt - create call graph from gcc RTL dump
+
+=head1 SYNOPISIS
+
+ egypt <options> <rtl-file>... | dotty -
+ egypt <options> <rtl-file>... | dot <dot-options>
+
+=head1 DESCRIPTION
+
+Egypt is a simple tool for creating call graphs of C programs.
+
+=head1 OPTIONS
+
+=over 8
+
+=item --callers function,function...
+
+Show only the given function(s) and their callers, recursively
+including all functions from which the given functions can be
+reached.  Taking the address of a function is considered
+equivalent to a call for the purpose of determining reachability.
+For the supported forms of the "function" arguments, see the
+section titled "Selecting functions".
+
+=item --callees function,function...
+
+Show only the given function(s) and their callees, recursively
+including all functions that can be reached from the given functions.
+Taking the address of a function is considered equivalent to a call
+for the purpose of determining reachability.
+For the supported forms of the "function" arguments, see the
+section titled "Selecting functions".
+
+=item --cluster-by-file
+
+Create a Graphviz cluster for each input file, containing the
+functions defined in that file.
+
+=item --include-external
+
+Include calls to external functions in the call graph.  A function is
+considered external if it is not defined in any of the input files.
+For example, functions in the standard C library are external.  Only
+direct function calls will be displayed; there is no way to display
+the action of taking the address of an external function.
+
+=item --omit function,function...
+
+Omit the given function(s) from the call graph.
+For the supported forms of the "function" arguments, see the
+section titled "Selecting functions".
+
+=item --summarize-callers n
+
+When a function has n or more callers, don't show show a separate
+arrow for each caller, but just a single arrow from a pseudo-node
+indicating the number of callers.  This is useful to reduce clutter
+resulting from utility functions called in a large number of places.
+
+=back
+
+=head1 HOW IT WORKS
+
+The two major tasks in creating a call graph are analyzing the syntax
+of the source code to find the function calls and laying out the
+graph, but Egypt actually does neither.  Instead, it delegates the
+source code analysis to GCC and the graph layout to Graphviz, both of
+which are better at their respective jobs than egypt could ever hope
+to be itself.  Egypt itself is just a small Perl script that acts as
+glue between these existing tools.
+
+Egypt takes advantage of GCC's capability to dump an intermediate
+representation of the program being compiled into a file (a I<RTL
+file>); this file is much easier to extract information from than a C
+source file.  Egypt extracts information about function calls from the
+RTL file and massages it into the format used by Graphviz.
+
+=head1 GENERATING THE RTL FILE
+
+Compile the program or source file you want to create a call graph for
+with gcc, adding the option "-fdump-rtl-expand" to CFLAGS.  This
+option causes gcc to dump its intermediate code representation of each
+file it compiles into a file.  In old versions of GCC this option
+was called "-dr", but GCC 4.4.0 and newer accept only the
+"-fdump-rtl-expand" form.  For best results, compile without
+optimization.
+
+For example, the following works for many programs:
+
+   make clean
+   make CFLAGS=-fdump-rtl-expand
+
+Depending on the GCC version, the RTL file for a source file F<foo.c>
+may be called something like F<foo.c.rtl>, F<foo.c.00.rtl>,
+F<foo.c.00.expand>, or F<foo.c.229r.expand>.
+
+=head1 SELECTING FUNCTIONS
+
+In the command line options that take function names as arguments,
+multiple C function names can be given separated by commas.
+
+C++ functions names can be given either in their name-mangled or
+demangled form; see the section titled "C++ Support" for details about
+demangling.  Because the demangled form can include commas, multiple
+functions must be given by specifying the command line option multiple
+times rather than as a single option with a comma-separated argument.
+
+=head1 VIEWING THE CALL GRAPH
+
+To view the call graph in an X11 window, run egypt with one or
+more RTL files as command line arguments and pipe its output to the
+B<dotty> program from the Graphviz package.  For example, if you
+compiled F<foo.c> with C<gcc -fdump-rtl-expand> to
+generate F<foo.c.229r.expand>, you can use
+
+    egypt foo.c.229r.expand | dotty -
+
+If the program contains many source files, consider using
+shell wildcards or the B<find> command:
+
+    egypt *.expand | dotty -
+    egypt $(find . -name '*.expand' -print) | dotty -
+
+=head1 PRINTING THE CALL GRAPH
+
+To convert the call graph into a file format suitable for printing or
+embedding into a document, use the use the B<dot> program from the
+Graphviz package.
+
+For example, to generate a PDF file F<callgraph.pdf>
+fitting everything on a US letter size page in landscape mode, try
+
+   egypt *.expand | dot -Grotate=90 -Gsize=11,8.5 -Tpdf -o callgraph.pdf
+
+Sometimes, the graph will fit better if function calls go from left to
+right instead of top to bottom.  The B<dot> option B<-Grankdir=LR>
+will do that:
+
+   egypt *.expand | dot -Gsize=8.5,11 -Grankdir=LR -Tpdf -o callgraph.pdf
+
+For nontrivial programs, the graph may end up too small
+to comfortably read.  If that happens, try N-up printing
+using the PostScript driver:
+
+   egypt *.expand | dot -Gpage=8.5,11 -Tps -o callgraph.ps
+
+You can also try playing with other B<dot> options such as B<-Gratio>,
+or for a different style of graph, try using B<neato> instead of
+B<dot>.  See the Graphviz documentation for more information about the
+various options available for customizing the style of the graph
+and the supported output file formats.
+
+=head1 READING THE CALL GRAPH
+
+Function calls are displayed as solid arrows.  A dotted arrow means
+that the function the arrow points from takes the address of the
+function the arrow points to.
+
+=head1 INDIRECT FUNCTION CALLS
+
+Egypt does not display indirect function calls.  Doing that is
+impossible in the general case: determining which functions will call
+each other indirectly at runtime would require solving the halting
+problem.
+
+The dotted arrows generated by egypt are sometimes misunderstood to
+represent indirect calls, but they actually represent
+taking the address of a function, resulting in a function pointer.
+That function pointer will typically be used to make an indirect
+function call at some later time, but the call is not necessarily made
+from the same function where there address was taken, and it is
+generally not possible to determine where or even whether that call
+will take place.
+
+The dotted arrows may or may not be useful for understanding the
+program structure depending on the particular style of programming
+used.  One case where they are often useful is with event-driven
+programs where a sequence of events is handled by a chain of callback
+functions, each one registering the address of the next with the event
+handling framework before returning to the event loop.  In such a
+program, the dotted arrows will indicate which callbacks cause which
+other callbacks to be invoked; such a graph may to be more useful than
+a graph of the actual indirect calls, which would just show the event
+loop calling every callback.
+
+=head1 C++ SUPPORT
+
+Egypt provides limited support for C++.  Producing readable call
+graphs from C++ is more challenging than the C case because the fully
+qualified names of C++ functions tend to be long, especially when
+using templates.
+
+Egypt attempts to automatically demangle C++ function names and
+display them in in the native C++ syntax.  This demangling support
+relies on comments in the RTL output generated by GCC, and the exact
+format of the demangled names varies between GCC versions.  Some
+include the return type and argument list (e.g., gcc 7.5.0), while
+others don't (e.g., gcc 10.2), so the same member function can appear
+in the call graph as either C<void C::f(int, int)> or just C<C::f>
+depending on the GCC version.  If GCC does not include the argument
+list, overloaded functions will appear in the graph as distinct nodes
+with identical labels.
+
+When specifying C++ function names on the command line using the
+demangled form, they must be given exactly as they appear in
+the call graph using your version of GCC, including any
+embedded whitespace.  Shell quoting may be needed to preserve
+whitespace or special characters in the function name.
+
+Egypt will not display virtual function calls, because there is no
+easy way to determine which virtual function is being called
+based on the RTL.  Inline functions may be subsumed into their
+callers.
+
+When using the C<--include-external> option to display external C++
+functions, such as those in the C++ standard library, they will be
+displayed in their name mangled form, and when they are given as
+arguments to command line options, they must be given in their name
+mangled form.
+
+=head1 WHY IS IT CALLED EGYPT?
+
+The original plan was to call it B<rtlcg>, short for I<RTL Call Graph>,
+but it turned out to be one of those rare cases where ROT13'ing the
+name made it easier to remember and pronounce.
+
+=head1 SEE ALSO
+
+L<gcc>, L<dotty>, L<dot>, L<neato>
+
+=head1 COPYRIGHT
+
+Copyright 1994-2022 Andreas Gustafsson
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=head1 AUTHOR
+
+Andreas Gustafsson
+
+=cut
+
+use strict;
+use Getopt::Long;
+
+use vars qw($VERSION);
+
+$VERSION = "1.11";
+
+# Call structure data indexed by calling function name.  This is a
+# reference to a hash table where the key is a the name of a function
+# (the caller) and the value is a reference to another hash table of
+# attributes of that function.
+#
+# For internal functions (those defined in the RTL), the 'calls'
+# attribute is a reference to an inner hash table indexed by the name
+# of a symbol referenced by the caller (the potential callee) and a
+# value of "call" (if the reference is a direct function call) or
+# "ref" (if the reference is a non-function-call symbol reference; if
+# the referenced symbol itself turns out to be a function, this will
+# be considered an indirect function call).
+#
+# For external functions (those called from the RTL but not defined in
+# the RTL), the inner hash table is empty.  To check if a function
+# is internal, you can check for the presence of the 'file' attribute.
+
+my $funcs = { };
+
+# The current function
+my $curfunc;
+
+# Functions to omit, as an array
+my @omit = ();
+# Ditto as a hash
+my %omit_map;
+
+# Values of command line options
+my @callers_of;
+my @callees_of;
+my $include_external = 0;
+my $cluster_by_file = 0;
+my $summarize_callers;
+
+# Map from demangled to mangled C++ function name
+my $mangle_map = { };
+
+# Mapping from symbol reference types to dot styles
+
+my $styles = {
+    call => 'solid',
+    ref => 'dotted'
+};
+
+# Convert a Perl string into a dot string
+
+sub dot_string {
+    my ($s) = @_;
+    # Escape embedded quotes
+    $s =~ s/\"/\\\"/g;
+    # Surround with qotes
+    return "\"$s\"";
+}
+
+GetOptions('omit=s' => \@omit,
+           'callers=s' => \@callers_of,
+           'callees=s' => \@callees_of,
+           'include-external' => \$include_external,
+           'cluster-by-file' => \$cluster_by_file,
+           'summarize-callers=i' => \$summarize_callers);
+
+# Given a list of one or more items that can each contain
+# lists of comma-separated items, return a list where the
+# comma-separated items have been expanded.  Any items
+# containing parentheses are left alone.
+
+sub split_function_list {
+    return map {
+        m/[\(\)]/ ? $_ : split(/,/, $_);
+    } @_;
+}
+
+@omit = split_function_list(@omit);
+@callees_of = split_function_list(@callees_of);
+@callers_of = split_function_list(@callers_of);
+
+# Called at the start of each new function in the RTL
+
+sub enter_func {
+    my ($funcname, $source_fn) = @_;
+    $curfunc = $funcname;
+    $funcs->{$funcname}->{file} = $source_fn;
+}
+
+# Register a function call in the global $funcs
+
+sub save_call {
+    my ($caller, $callee, $reftype) = @_;
+    # ARM short calls are flagged with a caret prefix; ignore it
+    $callee =~ s/^\^+//;
+    # Store the reference type, but if a direct call to a function
+    # is followed by taking the address of the same function,
+    # keep it as a direct call.
+    if (! exists($funcs->{$caller}->{'calls'}->{$callee})) {
+        $funcs->{$caller}->{'calls'}->{$callee} = $reftype;
+    }
+    # Create a node for the callee if it doesn't have one already,
+    # just in case it's an external function, since those don't
+    # get a node otherwise.
+    if ($reftype eq 'call' && ! exists($funcs->{$callee})) {
+        $funcs->{$callee} = { };
+    }
+}
+
+# Read the RTL
+
+foreach my $fn (@ARGV) {
+    open(my $fh, "<", $fn)
+        or die "open: $fn: $!\n";
+
+    # Find the original source file name by stripping the last two
+    # filename extensions (e.g., .229r.expand)
+    my @parts = split('\.', $fn);
+    my $source_fn = join('.', @parts[0..$#parts-2]);
+
+    while (<$fh>) {
+        chomp;
+        # Look for a comment indicating the start of a function
+        if (/^;; Function (\S+)\s*$/) {
+            # pre-gcc4 style
+            enter_func($1, $source_fn);
+        } elsif (/^;; Function (.*)\s+\((\S+)(,.*)?\).*$/) {
+            # gcc4 style - $1 is the human readable name, and $2 is the mangled name
+            # Compiling for ARM, it can look like ";; Function foo (foo)[0:3]"
+            my ($unmangled, $mangled) = ($1, $2);
+            # As of gcc 7.5.0, the ";; Function" comments and the function
+            # calls use different name manglings for constructors: the
+            # comment contains C2 ("base object contructor"), but the
+            # calls contain C1 ("complete object constructor").
+            # Destructors have a corresponding issue with D1 vs D2.  Work
+            # around this by replacing C2/D2 by C1/D1 as needed.  This is
+            # intended to fix the common case of code that does not use
+            # virtual base classes (not to be confused with virtual
+            # functions or abstract base classes).  It has not been tested
+            # with code that does use virtual base classes, and will quite
+            # possibly break that case.
+            if ($mangled =~ /(_ZN(\d+))(.*)/) {
+                my ($prefix, $c2_pos, $suffix) = ($1, $2, $3);
+                my $sub = substr($suffix, $c2_pos, 2);
+                if ($sub eq 'C2' || $sub eq 'D2') {
+                    substr($suffix, $c2_pos + 1, 1) = '1';
+                    my $remangled = $prefix . $suffix;
+                    $mangled = $remangled;
+                }
+            }
+            enter_func($mangled, $source_fn);
+            if ($unmangled ne $mangled) {
+                $mangle_map->{$unmangled} = $mangled;
+                # Use the unmangled C++ name as the label
+                $funcs->{$curfunc}->{'attrs'}->{'label'} = $unmangled;
+            }
+        }
+
+        # Look for a function call or symbol reference.
+        if (/^.*\(call.*"(.*)".*$/) {
+            save_call($curfunc, $1, 'call');
+        } elsif (/^.*\(symbol_ref[^"]*"([^"]*)".*$/) {
+            # The first quoted string after symbol_ref is a symbol being
+            # referenced by the current function (it may be followed by
+            # other strings such as a file name).  This could be the name
+            # of another function or of some data variable; we save the
+            # reference regardless, and will ignore it later on if it
+            # turns out not to match a known function.
+            save_call($curfunc, $1, 'ref');
+        }
+    }
+    close($fh);
+}
+
+# Mangle a function name
+
+sub mangle {
+    my ($f) = @_;
+    my $m = $mangle_map->{$f};
+    if ($m) {
+        return $m;
+    } elsif (defined($funcs->{$f})) {
+        return $f;
+    } else {
+        warn "warning: unknown function \"$f\" ignored\n";
+        return ();
+    }
+}
+
+@omit = map { mangle($_); } @omit;
+@callees_of = map { mangle($_) } @callees_of;
+@callers_of = map { mangle($_) } @callers_of;
+
+delete @$funcs{@omit};
+
+@omit_map{@omit} = ();
+
+my $genid = "node00000000";
+
+# Depth-first search: add the function $f to $set, and then
+# recursively walk its callers or callees (as determined by $key) and
+# add them, too, if they are not already in the set.
+# Uses the global $funcs.
+
+sub dfs {
+    my ($set, $f, $key) = @_;
+    $set->{$f} = undef;
+    # Guard against autovivification
+    if (exists($funcs->{$f})) {
+        if (exists($funcs->{$f}->{$key})) {
+            foreach my $g (keys %{$funcs->{$f}->{$key}}) {
+                if (! exists($set->{$g})) {
+                    dfs($set, $g, $key);
+                }
+            }
+        }
+    }
+}
+
+# Find the functions reachable from the list of functions @$fs,
+# returning a set (as a hash with values of undef).
+
+sub functions_reachable_from {
+    my ($fs, $key) = @_;
+    my $set = { };
+    foreach my $f (@$fs) {
+        dfs($set, $f, $key);
+    }
+    return $set;
+}
+
+# Update $funcs to add a reverse index for finding callers given their
+# callees.  Adds a new key "sllac" ("calls" backwards) to each
+# called function.
+
+sub make_reverse_index {
+    my ($funcs) = @_;
+    my @fs = keys %$funcs;
+    foreach my $f (@fs) {
+        my $attrs = $funcs->{$f};
+        my $calls = $attrs->{calls};
+        foreach my $g (keys %$calls) {
+            my $type = $calls->{$g}; # call or ref
+            $funcs->{$g}->{sllac}->{$f} = $type;
+        }
+    }
+}
+
+# Delete all functions in $funcs not in $keep, as well as all calls to
+# the deleted functions.
+
+sub cull {
+    my ($funcs, $keep) = @_;
+    foreach my $f (keys %$funcs) {
+        if (! exists($keep->{$f})) {
+            delete $funcs->{$f};
+        } else {
+            my $calls = $funcs->{$f}->{calls};
+            foreach my $g (keys %$calls) {
+                if (! exists($keep->{$g})) {
+                    delete $calls->{$g};
+                }
+            }
+        }
+    }
+}
+
+if (@callees_of) {
+    cull($funcs, functions_reachable_from([@callees_of], 'calls'));
+}
+if (@callers_of) {
+    make_reverse_index($funcs);
+    cull($funcs, functions_reachable_from([@callers_of], 'sllac'));
+}
+
+# Handle summarize_callers
+
+if (defined($summarize_callers)) {
+    my %n_incoming_calls;
+    # Count the incoming calls
+    foreach my $caller (keys %{$funcs}) {
+        foreach my $callee (keys %{$funcs->{$caller}->{'calls'}}) {
+            $n_incoming_calls{$callee}++;
+        }
+    }
+    # Delete the usual arrows
+    foreach my $caller (keys %{$funcs}) {
+        foreach my $callee (keys %{$funcs->{$caller}->{'calls'}}) {
+            if ($n_incoming_calls{$callee} >= $summarize_callers) {
+                delete $funcs->{$caller}->{'calls'}->{$callee};
+            }
+        }
+    }
+    # Add summary arrows instead
+    while (my ($callee, $n_calls) = each %n_incoming_calls) {
+        if ($n_calls >= $summarize_callers) {
+            my $id = $genid++;
+            $funcs->{$id}->{'is_summary'} = 1;
+            $funcs->{$id}->{'attrs'}->{'shape'} = 'plaintext';
+            # XXX call/ref distinction
+            $funcs->{$id}->{'calls'}->{$callee} = 'call';
+            $funcs->{$id}->{'attrs'}->{'label'} = "$n_calls callers";
+        }
+    }
+}
+
+# Return true iff we should show a call of type $reftype to
+# the function $callee.
+
+sub show_call_p {
+    # If the referenced symbol is not a defined function
+    # or a direct call to an external function, ignore it.
+    my ($reftype, $callee) = @_;
+    my $r = (exists($funcs->{$callee}->{file}) or
+        ($include_external and $reftype eq 'call'
+         and ! exists $omit_map{$callee}));
+    return $r;
+}
+
+print "digraph callgraph {\n";
+
+# Nodes
+
+foreach my $f (sort keys %$funcs) {
+    # Omit nodes for external functions without --include-external
+    next if ! $include_external and
+        ! (exists($funcs->{$f}->{file}) or exists($funcs->{$f}->{is_summary}));
+    my $a = $funcs->{$f}->{'attrs'} || { };
+    # If externals are hidden, hide their summary nodes, too.
+    # Otherwise, we might get a node like "42 callers" with no
+    # callee, because that callee is a hidden printf().
+    if (exists $funcs->{$f}->{'is_summary'}) {
+        my @callees = keys %{$funcs->{$f}->{'calls'}};
+        @callees == 1 or die;
+        next if ! show_call_p('call', $callees[0]);
+    }
+    my $attrs_str = join(" ", map {
+        my $val = dot_string($a->{$_});
+        "$_=$val"
+    } sort keys %$a);
+    my $f_s = dot_string($f);
+    print "$f_s [$attrs_str];\n";
+}
+
+# Edges
+
+foreach my $caller (sort keys %{$funcs}) {
+    foreach my $callee (sort keys %{$funcs->{$caller}->{'calls'}}) {
+        my $reftype = $funcs->{$caller}->{'calls'}->{$callee};
+        next unless show_call_p($reftype, $callee);
+        my $style = $styles->{$reftype};
+        my $caller_s = dot_string($caller);
+        my $callee_s = dot_string($callee);
+        print "$caller_s -> $callee_s [style=$style];\n";
+    }
+}
+
+# Subgraphs
+
+if ($cluster_by_file) {
+    # Mapping from source file name to a list of function names
+    my $funcs_by_file = { };
+    foreach my $func (sort keys %{$funcs}) {
+        my $attrs = $funcs->{$func};
+        if (exists($attrs->{file})) {
+            my $fn = $attrs->{file};
+            push(@{$funcs_by_file->{$fn}}, $func);
+        }
+    }
+    foreach my $fn (sort keys %{$funcs_by_file}) {
+        print "subgraph ", dot_string("cluster_" . $fn), " {\n";
+        print "label=", dot_string($fn), "\n";
+        foreach my $func (@{$funcs_by_file->{$fn}}) {
+            print dot_string($func), ";\n";
+        }
+        print "}\n";
+    }
+}
+
+print "}\n";
