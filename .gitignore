@@ -1,6 +1,8 @@
 /build
 /examples/c/build
 /examples/c/.xmake
+/examples/.vscode
 /.idea
-/
-.vscode
+/.clang-format
+/.vscode
+
