@@ -36,8 +36,7 @@ else
 BZS_APPS := profile
 APPS += $(BZS_APPS)
 # Required by libblazesym
-ALL_LDFLAGS += -lrt -ldl -lpthread -lm \
-			-L/home/jiahuan/zlib-1.2.10
+ALL_LDFLAGS += -lrt -ldl -lpthread -lm
 endif
 
 # Get Clang's default includes on this system. We'll explicitly add these dirs
