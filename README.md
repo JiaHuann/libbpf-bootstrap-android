@@ -1,3 +1,13 @@
+---
+layout: post
+title: libbpf-bootstrap-android
+date: 2022-10-10 16:18
+category: Framework
+author: JiaHuann
+tags: [Android, ebpf-framework, cross-compile]
+summary: For amd64 aarch machine to directly using libbpf-bootstrap framwork to write ebpf programs both kernel and user space.And you don't need to have `CONFIG_BTF_DEBUG_INFO` support by using externel BTF file in BTFhubForAndroid instead.For this goal,I did some changes on libbpf-bootstrap,and have done some embedded features.Wish this can help you sth.Best regards. 
+---
+
 # Libbpf-bootstrap for android
 > For amd64 aarch machine to directly using libbpf-bootstrap framwork to write ebpf programs both kernel and user space.And you don't need to have `CONFIG_BTF_DEBUG_INFO` support by using externel BTF file in BTFhubForAndroid instead.For this goal,I did some changes on libbpf-bootstrap,and have done some embedded features.Wish this can help you sth.Best regards. 
 ## upstream: 
@@ -47,6 +57,12 @@ Congratulations!
 - FlameGraph embedded to monitor performance.
 - For None BTF/vmlinux android-kernel(CONFIG_DEBUG_INFO_BTF not set) support.
 - adb debug (after compiling&linking, directly push into android-phone) embedded.
+
+# RoadMap:
+- change the static link to ShareLib.
+- Measure the eBPF program's overhead by FlameGraph.
+- Add more Android features into support.
+- Test for lower Android version.
 
 
 
