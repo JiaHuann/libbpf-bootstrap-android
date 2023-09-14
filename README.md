@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ---
 layout: post
 title: libbpf-bootstrap-android
@@ -64,9 +63,3 @@ Congratulations!
 - Measure the eBPF program's overhead by FlameGraph.
 - Add more Android features into support.
 - Test for lower Android version.
-
-
-
-=======
-# libbpf-bootstrap-android
->>>>>>> b0d37de (Initial commit)
